@@ -1,75 +1,105 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Dimensions, ActivityIndicator } from 'react-native';
+import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
+import * as Location from 'expo-location';
+import type { Hospital } from '../../types/hospital';
+import { useRouter } from 'expo-router';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+const { width, height } = Dimensions.get('window');
 
 export default function HomeScreen() {
+  const [location, setLocation] = useState<Location.LocationObject | null>(
+    null
+  );
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  // mock 병원 데이터
+  const hospitals: Hospital[] = [
+    {
+      id: '1',
+      name: '첫번째 병원',
+      latitude: 37.5665,
+      longitude: 126.978,
+      isOpenNow: true,
+    },
+    {
+      id: '2',
+      name: '두번째 병원',
+      latitude: 37.5672,
+      longitude: 126.982,
+      isOpenNow: false,
+    },
+  ];
+
+  useEffect(() => {
+    (async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        alert('위치 권한이 필요합니다');
+        return;
+      }
+      const loc = await Location.getCurrentPositionAsync({});
+      setLocation(loc);
+      setLoading(false);
+    })();
+  }, []);
+
+  if (loading || !location) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#5DB075" />
+      </View>
+    );
+  }
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+    <MapView
+      provider={PROVIDER_GOOGLE}
+      style={styles.map}
+      initialRegion={{
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      }}
+    >
+      {/* 내 위치 마커 */}
+      <Marker
+        coordinate={{
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        }}
+        title="내 위치"
+        pinColor="blue"
+      />
+
+      {/* 병원 마커 */}
+      {hospitals.map((hospital) => (
+        <Marker
+          key={hospital.id}
+          coordinate={{
+            latitude: hospital.latitude,
+            longitude: hospital.longitude,
+          }}
+          title={hospital.name}
+          description={hospital.isOpenNow ? '영업중' : '영업종료'}
+          pinColor={hospital.isOpenNow ? 'green' : 'red'}
+          // onPress={() => router.push()}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      ))}
+    </MapView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+  map: {
+    width: width,
+    height: height,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
   },
 });
