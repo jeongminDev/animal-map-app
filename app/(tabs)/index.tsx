@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Dimensions, ActivityIndicator } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
-import type { Hospital } from '../../types/hospital';
 import { useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
-const { width, height } = Dimensions.get('window');
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import hospitals from '@/data/hospitals';
 
 export default function HomeScreen() {
   const [location, setLocation] = useState<Location.LocationObject | null>(
@@ -13,24 +14,6 @@ export default function HomeScreen() {
   );
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-
-  // mock 병원 데이터
-  const hospitals: Hospital[] = [
-    {
-      id: '1',
-      name: '첫번째 병원',
-      latitude: 37.5665,
-      longitude: 126.978,
-      isOpenNow: true,
-    },
-    {
-      id: '2',
-      name: '두번째 병원',
-      latitude: 37.5672,
-      longitude: 126.982,
-      isOpenNow: false,
-    },
-  ];
 
   useEffect(() => {
     (async () => {
@@ -54,52 +37,88 @@ export default function HomeScreen() {
   }
 
   return (
-    <MapView
-      provider={PROVIDER_GOOGLE}
-      style={styles.map}
-      initialRegion={{
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      }}
-    >
-      {/* 내 위치 마커 */}
-      <Marker
-        coordinate={{
+    <ThemedView style={styles.container}>
+      <MapView
+        provider={PROVIDER_GOOGLE}
+        style={styles.map}
+        initialRegion={{
           latitude: location.coords.latitude,
           longitude: location.coords.longitude,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
         }}
-        title="내 위치"
-        pinColor="blue"
-      />
-
-      {/* 병원 마커 */}
-      {hospitals.map((hospital) => (
+      >
+        {/* 내 위치 마커 */}
         <Marker
-          key={hospital.id}
           coordinate={{
-            latitude: hospital.latitude,
-            longitude: hospital.longitude,
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
           }}
-          title={hospital.name}
-          description={hospital.isOpenNow ? '영업중' : '영업종료'}
-          pinColor={hospital.isOpenNow ? 'green' : 'red'}
-          // onPress={() => router.push()}
+          title="내 위치"
+          pinColor="blue"
         />
-      ))}
-    </MapView>
+
+        {/* 병원 마커 */}
+        {hospitals.map((hospital) => (
+          <Marker
+            key={hospital.id}
+            coordinate={{
+              latitude: hospital.latitude,
+              longitude: hospital.longitude,
+            }}
+            title={hospital.name}
+            description={hospital.isOpenNow ? '영업중' : '영업종료'}
+            pinColor={hospital.isOpenNow ? 'green' : 'red'}
+            onPress={() => router.push(`/hospital/${hospital.id}`)}
+          />
+        ))}
+      </MapView>
+      <ThemedView style={styles.listContainer}>
+        <ThemedText type="title">주변 병원</ThemedText>
+        <FlatList
+          data={hospitals}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <ThemedView style={styles.hospitalItem}>
+              <View>
+                <ThemedText type="defaultSemiBold">{item.name}</ThemedText>
+                <ThemedText>거리: 500m</ThemedText>
+              </View>
+              <ThemedText style={{ color: item.isOpenNow ? 'green' : 'red' }}>
+                {item.isOpenNow ? '영업중' : '영업종료'}
+              </ThemedText>
+            </ThemedView>
+          )}
+        />
+      </ThemedView>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   map: {
-    width: width,
-    height: height,
+    width: '100%',
+    height: '55%',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  listContainer: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+  },
+  hospitalItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
   },
 });
