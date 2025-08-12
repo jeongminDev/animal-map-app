@@ -1,4 +1,4 @@
-import 'dotenv/config'; // ← .env를 사용할 수 있게 해줌
+import 'dotenv/config';
 
 export default {
   expo: {
@@ -13,7 +13,7 @@ export default {
     ios: {
       supportsTablet: true,
       config: {
-        googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY, // ✅ 여기에 사용 가능!
+        googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
       },
     },
     android: {
@@ -24,7 +24,7 @@ export default {
       },
       config: {
         googleMaps: {
-          apiKey: process.env.GOOGLE_MAPS_API_KEY, // ✅ 여기도!
+          apiKey: process.env.GOOGLE_MAPS_API_KEY,
         },
       },
     },

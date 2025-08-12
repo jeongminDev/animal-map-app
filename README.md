@@ -1,50 +1,64 @@
-# Welcome to your Expo app 👋
+# Animal Map App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+우리 동네 동물 병원, 약국 등 반려 동물 관련 시설 정보를 손쉽게 찾아볼 수 있는 모바일 애플리케이션입니다.
 
-## Get started
+## 🌟 주요 기능
 
-1. Install dependencies
+- **지도 기반 시설 검색:** 사용자의 현재 위치를 중심으로 주변의 동물 관련 시설을 지도 위에 표시합니다.
+- **실시간 영업 정보:** 각 시설의 영업 상태(영업 중, 영업 종료)를 직관적으로 확인할 수 있습니다.
+- **상세 정보 제공:** 시설을 선택하면 상세 정보 페이지로 이동하여 더 많은 정보를 얻을 수 있습니다. (구현 예정)
+- **시설 필터링:** 병원, 약국 등 원하는 시설 종류에 따라 필터링하여 볼 수 있습니다. (구현 예정)
+- **검색 기능:** 특정 이름의 시설을 검색할 수 있습니다. (구현 예정)
 
-   ```bash
-   npm install
-   ```
+## 🛠️ 기술 스택
 
-2. Start the app
+- **Framework:** React Native & Expo
+- **Language:** TypeScript
+- **Navigation:** Expo Router
+- **Map:** React Native Maps (Google Maps Provider)
+- **State Management:** Zustand (기획 단계에서는 Redux Toolkit을 고려했으나, 현재 `zustand` 가 설치되어 있습니다.)
+- **Styling:** React Native StyleSheet
 
-   ```bash
-   npx expo start
-   ```
+## 📂 프로젝트 구조
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+.
+├── app/              # Expo Router 기반의 스크린 및 네비게이션
+│   ├── (tabs)/       # 탭 기반 레이아웃
+│   └── hospital/     # 병원 상세 페이지
+├── assets/           # 폰트, 이미지 등 정적 에셋
+├── components/       # 재사용 가능한 UI 컴포넌트
+├── constants/        # 색상, 스타일 등 공통 상수
+├── data/             # 임시 데이터 (현재 병원 mock 데이터)
+├── hooks/            # 커스텀 훅
+└── types/            # TypeScript 타입 정의
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## 🚀 시작하기
 
-## Learn more
+### 1. 프로젝트 클론 및 의존성 설치
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+git clone <repository-url>
+cd animal-map-app
+npm install
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### 2. 환경 변수 설정
 
-## Join the community
+`app.config.js`에서 Google Maps API 키를 사용하고 있습니다. 프로젝트 루트에 `.env` 파일을 생성하고 아래와 같이 API 키를 추가해야 합니다.
 
-Join our community of developers creating universal apps.
+```
+GOOGLE_MAPS_API_KEY="YOUR_GOOGLE_MAPS_API_KEY"
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### 3. 앱 실행
+
+- **iOS:** `npm run ios`
+- **Android:** `npm run android`
+- **Web:** `npm run web`
+
+## 📝 API
+
+현재는 `data/hospitals.ts`에 있는 mock 데이터를 사용하여 개발 중입니다.
+최종적으로는 [공공데이터포털](https://www.data.go.kr/)에서 제공하는 전국 동물병원 정보를 활용할 계획입니다.
